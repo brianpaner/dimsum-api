@@ -1,5 +1,5 @@
 # app.py - Flask REST API for Dim Sum Comparison
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
