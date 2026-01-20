@@ -4,12 +4,17 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dimsum.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 CORS(app)
 
 db = SQLAlchemy(app)
+
+# Serve your frontend
+@app.route("/")
+def home():
+    return render_template("index.html")
 
 # Database Model
 class DimSum(db.Model):
@@ -154,6 +159,7 @@ def get_stats():
         'restaurants': [{'name': r[0], 'count': r[1]} for r in restaurants if r[0]],
         'dish_types': [{'type': d[0], 'count': d[1]} for d in dish_types if d[0]]
     })
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
