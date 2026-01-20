@@ -480,7 +480,7 @@
             };
 
             try {
-                const response = await fetch(`${API_URL}/dimsum`, {
+                const response = await fetch(`${API_URL}/dimsum-api`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -501,7 +501,7 @@
 
         async function loadDimSum(search = '') {
             try {
-                const url = search ? `${API_URL}/dimsum?search=${encodeURIComponent(search)}` : `${API_URL}/dimsum`;
+                const url = search ? `${API_URL}/dimsum-api?search=${encodeURIComponent(search)}` : `${API_URL}/dimsum-api`;
                 const response = await fetch(url);
                 const items = await response.json();
                 displayDimSum(items);
@@ -560,7 +560,7 @@
             if (!confirm('Are you sure you want to delete this entry?')) return;
 
             try {
-                const response = await fetch(`${API_URL}/dimsum/${id}`, {
+                const response = await fetch(`${API_URL}/dimsum-api/${id}`, {
                     method: 'DELETE'
                 });
 
