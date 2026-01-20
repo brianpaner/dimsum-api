@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dim Sum You Win, Dim Sum You Lose</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 50%, #6bcf7f 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            color: white;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            font-weight: 900;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            font-weight: 300;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .btn-delete {
+            background: #f44336;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .form-container.active {
+            display: block;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input, textarea, select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .stars {
+            display: flex;
+            gap: 5px;
+        }
+
+        .star {
+            font-size: 24px;
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.2s;
+        }
+
+        .star.filled {
+            color: #ffd93d;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .toggle-btn.active {
+            background: #6bcf7f;
+            color: white;
+            border-color: #6bcf7f;
+        }
+
+        .toggle-btn.inactive {
+            background: #ff6b6b;
+            color: white;
+            border-color: #ff6b6b;
+        }
+
+        .dimsum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .dimsum-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            border-left: 5px solid #6bcf7f;
+        }
+
+        .dimsum-card.loser {
+            border-left-color: #ff6b6b;
+        }
+
+        .dimsum-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .restaurant-name {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .dish-name {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .card-meta {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .card-notes {
+            color: #555;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        .card-rating {
+            margin: 10px 0;
+        }
+
+        .verdict {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .verdict.win {
+            background: #6bcf7f;
+            color: white;
+        }
+
+        .verdict.lose {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .price {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .stat-number.win {
+            color: #6bcf7f;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: white;
+            padding: 60px 20px;
+            font-size: 1.2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🥟 Dim Sum You Win, Dim Sum You Lose 🥠</h1>
+            <p class="subtitle">Your ultimate dim sum comparison guide</p>
+        </header>
+
+        <div class="controls">
+            <input type="text" id="searchBox" class="search-box" placeholder="Search restaurants, dishes, or types...">
+            <button class="btn btn-primary" onclick="toggleForm()">+ Add Dim Sum</button>
+        </div>
+
+        <div id="formContainer" class="form-container">
+            <h2 style="margin-bottom: 20px;">Add New Dim Sum Experience</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Restaurant Name *</label>
+                    <input type="text" id="restaurantName" required>
+                </div>
+                <div class="form-group">
+                    <label>Dish Name *</label>
+                    <input type="text" id="dishName" required placeholder="e.g., Har Gow, Siu Mai">
+                </div>
+                <div class="form-group">
+                    <label>Dish Type</label>
+                    <select id="dishType">
+                        <option value="">Select type...</option>
+                        <option value="Dumpling">Dumpling</option>
+                        <option value="Bun">Bun</option>
+                        <option value="Rice Roll">Rice Roll</option>
+                        <option value="Fried">Fried</option>
+                        <option value="Steamed">Steamed</option>
+                        <option value="Dessert">Dessert</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Price ($)</label>
+                    <input type="number" id="price" step="0.01" min="0" placeholder="e.g., 5.99">
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" id="location" placeholder="e.g., Las Vegas, NV">
+                </div>
+                <div class="form-group">
+                    <label>Visit Date</label>
+                    <input type="date" id="visitDate">
+                </div>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Your Rating</label>
+                <div class="stars" id="ratingStars"></div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Would You Order Again?</label>
+                <div class="toggle-group">
+                    <button type="button" class="toggle-btn active" id="winBtn" onclick="setVerdict(true)">
+                        👍 Win - Would Order Again
+                    </button>
+                    <button type="button" class="toggle-btn" id="loseBtn" onclick="setVerdict(false)">
+                        👎 Lose - Pass Next Time
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Notes</label>
+                <textarea id="notes" placeholder="What did you think? Texture, flavor, presentation..."></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="saveDimSum()">Save Entry</button>
+                <button class="btn btn-secondary" onclick="toggleForm()">Cancel</button>
+            </div>
+        </div>
+
+        <div id="stats" class="stats"></div>
+
+        <div id="dimsumGrid" class="dimsum-grid"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let currentRating = 0;
+        let wouldOrderAgain = true;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDimSum();
+            loadStats();
+            initRatingStars();
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('visitDate').value = today;
+            
+            document.getElementById('searchBox').addEventListener('input', (e) => {
+                loadDimSum(e.target.value);
+            });
+        });
+
+        function initRatingStars() {
+            const container = document.getElementById('ratingStars');
+            container.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('span');
+                star.className = 'star';
+                star.textContent = '★';
+                star.onclick = () => setRating(i);
+                container.appendChild(star);
+            }
+        }
+
+        function setRating(rating) {
+            currentRating = rating;
+            updateStarDisplay('ratingStars', rating);
+        }
+
+        function updateStarDisplay(containerId, rating) {
+            const stars = document.querySelectorAll(`#${containerId} .star`);
+            stars.forEach((star, index) => {
+                star.classList.toggle('filled', index < rating);
+            });
+        }
+
+        function setVerdict(isWin) {
+            wouldOrderAgain = isWin;
+            document.getElementById('winBtn').className = isWin ? 'toggle-btn active' : 'toggle-btn';
+            document.getElementById('loseBtn').className = !isWin ? 'toggle-btn inactive' : 'toggle-btn';
+        }
+
+        function toggleForm() {
+            const form = document.getElementById('formContainer');
+            form.classList.toggle('active');
+            if (!form.classList.contains('active')) {
+                clearForm();
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('restaurantName').value = '';
+            document.getElementById('dishName').value = '';
+            document.getElementById('dishType').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('location').value = '';
+            document.getElementById('notes').value = '';
+            document.getElementById('visitDate').value = new Date().toISOString().split('T')[0];
+            setRating(0);
+            setVerdict(true);
+        }
+
+        async function saveDimSum() {
+            const restaurantName = document.getElementById('restaurantName').value;
+            const dishName = document.getElementById('dishName').value;
+            
+            if (!restaurantName || !dishName) {
+                alert('Please enter both restaurant and dish name');
+                return;
+            }
+
+            const data = {
+                restaurant_name: restaurantName,
+                dish_name: dishName,
+                dish_type: document.getElementById('dishType').value,
+                rating: currentRating,
+                price: parseFloat(document.getElementById('price').value) || null,
+                notes: document.getElementById('notes').value,
+                visit_date: document.getElementById('visitDate').value,
+                location: document.getElementById('location').value,
+                would_order_again: wouldOrderAgain
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/dimsum`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    toggleForm();
+                    loadDimSum();
+                    loadStats();
+                } else {
+                    alert('Failed to save dim sum entry');
+                }
+            } catch (error) {
+                alert('Error connecting to server. Make sure the Flask API is running on port 5000.');
+                console.error(error);
+            }
+        }
+
+        async function loadDimSum(search = '') {
+            try {
+                const url = search ? `${API_URL}/dimsum?search=${encodeURIComponent(search)}` : `${API_URL}/dimsum`;
+                const response = await fetch(url);
+                const items = await response.json();
+                displayDimSum(items);
+            } catch (error) {
+                document.getElementById('dimsumGrid').innerHTML = 
+                    '<div class="empty-state">Unable to connect to API. Make sure Flask server is running on port 5000.</div>';
+                console.error(error);
+            }
+        }
+
+        function displayDimSum(items) {
+            const grid = document.getElementById('dimsumGrid');
+            
+            if (items.length === 0) {
+                grid.innerHTML = '<div class="empty-state">No dim sum entries yet. Start comparing!</div>';
+                return;
+            }
+
+            grid.innerHTML = items.map(item => `
+                <div class="dimsum-card ${item.would_order_again ? '' : 'loser'}">
+                    <div class="card-header">
+                        <div style="flex: 1;">
+                            <div class="restaurant-name">${item.restaurant_name}</div>
+                            <div class="dish-name">${item.dish_name}</div>
+                            <div class="card-meta">
+                                ${item.dish_type ? `${item.dish_type}` : ''} 
+                                ${item.location ? `• ${item.location}` : ''}
+                            </div>
+                        </div>
+                        <button class="btn btn-delete" onclick="deleteDimSum(${item.id})">Delete</button>
+                    </div>
+                    
+                    ${item.price ? `<div class="price">$${item.price.toFixed(2)}</div>` : ''}
+                    
+                    <div class="card-rating">
+                        <div class="stars">
+                            ${'★'.repeat(item.rating || 0).split('').map(() => '<span class="star filled">★</span>').join('')}
+                            ${'★'.repeat(5 - (item.rating || 0)).split('').map(() => '<span class="star">★</span>').join('')}
+                        </div>
+                    </div>
+                    
+                    ${item.notes ? `<div class="card-notes">${item.notes}</div>` : ''}
+                    
+                    <div class="verdict ${item.would_order_again ? 'win' : 'lose'}">
+                        ${item.would_order_again ? '👍 Would Order Again!' : '👎 Pass Next Time'}
+                    </div>
+                    
+                    <div class="card-meta" style="margin-top: 10px;">
+                        Visited: ${item.visit_date ? new Date(item.visit_date).toLocaleDateString() : 'Unknown'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function deleteDimSum(id) {
+            if (!confirm('Are you sure you want to delete this entry?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/dimsum/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadDimSum();
+                    loadStats();
+                }
+            } catch (error) {
+                alert('Error deleting entry');
+                console.error(error);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_URL}/stats`);
+                const stats = await response.json();
+                
+                document.getElementById('stats').innerHTML = `
+                    <div class="stat-item">
+                        <div class="stat-number">${stats.total_items}</div>
+                        <div class="stat-label">Total Dishes</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${stats.average_rating.toFixed(1)} ★</div>
+                        <div class="stat-label">Avg Rating</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">$${stats.average_price.toFixed(2)}</div>
+                        <div class="stat-label">Avg Price</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number win">${stats.winners} 👍</div>
+                        <div class="stat-label">Winners</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${stats.losers} 👎</div>
+                        <div class="stat-label">Losers</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+    </script>
+</body>
+</html>
